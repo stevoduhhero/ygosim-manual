@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Image Ripper kinda idk</title>
+<style>body, html {padding: 0;margin: 0;width: 100%;height: 100%;}</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="http://ygosim.dyndns.org/ygo/db.js"></script>
+</head>
+<body>
+Set ID: <select id="set"><option>lob</option><option>mrd</option><option>mrl</option><option>psv</option><option>lon</option><option>lod</option><option>pgd</option><option>mfc</option><option>dcr</option><option>ioc</option><option>ast</option><option>sod</option><option>rds</option><option>fet</option><option>tlm</option><option>crv</option><option>een</option><option>soi</option><option>eoj</option><option>potd</option><option>cdip</option><option>ston</option><option>fotb</option><option>taev</option><option>glas</option><option>ptdn</option><option>lodt</option><option>tdgs</option><option>csoc</option><option>crms</option><option>rgbt</option><option>anpr</option><option>sovr</option><option>ha01</option><option>abpf</option><option>tshd</option><option>ha02</option><option>drev</option><option>stbl</option><option>ha03</option><option>stor</option><option>ha04</option><option>exvc</option><option>genf</option><option>phsw</option><option>ha05</option><option>orcs</option><option>rymp</option><option>lcgx</option><option>gaov</option><option>bp01</option></select>
+Sets that are completed: ["lob", "mrd"]
+<h3 style="text-align: center;padding: 0;margin: 0;" id="time"><span id="minutes">0</span>:<span id="seconds">00</span><button onclick="start(this.innerHTML);" id="button">Start</button></h3>
+<table width="100%" height="80%" cellpadding="0" cellspacing="0">
+<tr valign="top">
+<td width="33%">
+Cards:<br />
+<div id="cards" style="width: 100%;height: 100%;overflow: auto;"></div>
+</td>
+<td width="33%">
+iFrame:<br />
+<iframe id="iframe" name="iframe" src="" width="100%" height="100%" style="border: none;padding: 0;margin: 0;"></iframe>
+</td>
+<td width="33%">
+Paste the image urls here:
+<textarea id="list" style="height: 500px;width: 100%;"></textarea>
+</td>
+</tr>
+</table>
+<div id="export"></div>
+<script>
+$(function() {
+	set();
+	$("#set").change(function() {
+		set();
+	});
+	$("#list").change(function() {
+		this.value += "\n";
+	});
+})
+function set() {
+	$("#cards").html("");
+	$("#export").html("$db = array(");
+	var set = $("#set").val();
+	var result = 0;
+	for (var i in db) {
+		var index = db[i]["set"].indexOf('-');
+		if (db[i]["set"].substr(0, index).toLowerCase() == set) {
+			result++;
+			$("#cards").append(result + '. <a href="http://yugioh.wikia.com/wiki/' + db[i]["name"] + '" target="iframe">' + db[i]["name"] + '</a><br />');
+			$("#export").append('"' + eval(result-1) + '"' + ' => "' + db[i]["set"] + '", ');
+		}
+	}
+}
+function start(val) {
+	if (val == "Start") {
+		$("#button").html("Stop");
+		timer = setInterval(function() {
+			var seconds = $("#seconds").html();
+			var minutes = $("#minutes").html();
+			if (seconds.split('')[0] == "0") {
+				var seconds = seconds.split('')[1];
+			}
+			if (seconds == "60") {
+				var seconds = "01";
+				var minutes = eval(minutes + "+" + 1);
+			}
+			else {
+				var seconds = eval(seconds + "+" + 1);
+			}
+			if (seconds < 10) {
+				var seconds = "0" + seconds;
+			}
+			$("#minutes").html(minutes);
+			$("#seconds").html(seconds);
+		}, 1000);
+	}
+	if (val == "Stop") {
+		$("#button").html("Start");
+		clearInterval(timer);
+	}
+}
+</script>
+</body>
+</html>

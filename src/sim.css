@@ -1,0 +1,746 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	font-size: 100%;
+	font-family: Arial;
+	background: #1a5b93;
+}
+html, body, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, input, textarea, form, label, p, table, tr, td {
+	padding: 0;
+	margin: 0;
+}
+button {
+	padding: 5px;
+	background: #e6e6e6;
+	margin: 0;
+}
+input, textarea {
+	outline: none;
+	resize: none;
+}
+table {
+	width: 100%;
+}
+.blink {
+	background: url(./imgs/blink.gif);
+	color: white;
+}
+.selecting {
+	cursor: crosshair;
+}
+.link {
+	cursor: pointer;
+}
+.link:hover {
+	text-decoration: underline;
+}
+.header {
+	height: 6%;
+	width: 100%;
+	background: black;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+}
+.header img {
+	height: 100%;
+}
+.users {
+	width: 20%;
+	height: 90%;
+	position: absolute;
+	top: 6.5%;
+	left: 1%;
+	border: 1px solid #b6b6b6;
+}
+.chat {
+	width: 77%;
+	height: 84%;
+	max-height: 89%;
+	position: absolute;
+	top: 6.5%;
+	left: 22%;
+	border: 1px solid #b6b6b6;
+}
+.buttons {
+	width: 77%;
+	height: 5%;
+	position: absolute;
+	top: 91.5%;
+	left: 22%;
+}
+.buttons button {
+	width: 24%;
+	margin-left: 1%;
+	margin-top: 1%;
+	height: 60%;
+	border: none;
+	float: left;
+	cursor: pointer;
+	border: 1px solid #b6b6b6;
+	padding: 1px;
+	opacity: 0.8;
+	filter: alpha(opacity=80);
+}
+.buttons button:hover {
+	opacity: 1;
+	filter: alpha(opacity=80);
+	padding: 0;
+}
+.relative {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.opaque {
+	opacity: 0.8;
+	filter: alpha(opacity=80);
+	background: white;
+}
+.abs {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.upper {
+	z-index: 1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.usersList {
+
+}
+.usersList div {
+	cursor: default;
+}
+.selectedUser {
+	outline: 1px dotted black;
+	background: white;
+}
+.logs {
+	position: absolute;
+	bottom: 36px;
+	left: 0;
+	width: 98%;
+	padding: 1%;
+	padding-top: 0;
+	padding-bottom: 0;
+	overflow: auto;
+	overflow-x: hidden;
+}
+.input {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 36px;
+}
+.input textarea {
+	width: 100%;
+	height: 100%;
+	border: none;
+	font-size: 15px;
+	font-family: Arial;
+	background: black;
+	font-weight: bold;
+	color: white;
+}
+.hide {
+	display: none;
+}
+.user-form-container {
+	top: 35%;
+	height: auto;
+	text-align: center;
+}
+.user-form {
+	background: #1a5b93;
+	border: 1px solid #b6b6b6;
+	padding: 5px;
+	margin: auto;
+	max-width: 45%;
+}
+.user-form label {
+	border-bottom: 1px solid #b6b6b6;
+	display: block;
+	margin-bottom: 20px;
+	font-weight: bold;
+}
+.user-form input {
+	margin-bottom: 20px;
+	padding: 1%;
+	width: 98%;
+}
+.right {
+	float: right;
+}
+.x {
+	padding: 5px;
+	font-size: 15px;
+	color: red;
+	cursor: pointer;
+}
+.auto {
+	width: auto;
+	height: auto;
+}
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+.dragee {
+	display: none;
+	position: absolute;
+	z-index: 2;
+}
+.o-choose-deck {
+	position: absolute;
+	background: white;
+	border: 1px solid #b6b6b6;
+	padding: 5px;
+	z-index: 1;
+	bottom: 150%;
+	left: 25px;
+	display: none;
+}
+.o-choose-deck select {
+	font-weight: bold;
+}
+.chal-o-choose-deck {
+	position: absolute;
+	background: white;
+	border: 1px solid #b6b6b6;
+	padding: 5px;
+	z-index: 1;
+	display: none;
+}
+.chal-o-choose-deck select {
+	font-weight: bold;
+}
+
+/* duel */
+.duel {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	display: none;
+	width: 100%;
+	height: 100%;
+	cursor: default;
+}
+.field {
+	width: 623px;
+	height: 178px;
+	background: url(./field.png);
+	margin: auto;
+	position: relative;
+}
+.division {
+	height: 89px;
+}
+.slot {
+	width: 79px;
+	height: 79px;
+	padding: 5px;
+	float: left;
+	text-align: center;
+}
+.duel-chat {
+	width: 18.5%;
+	height: 300px;
+	position: absolute;
+	top: 120px;
+	left: 0.5%;
+	z-index: 3;
+}
+.duel-chat-header {
+	background: #e6e6e6;
+	border: 1px solid #b6b6b6;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+	cursor: move;
+}
+.duel-chat-message {
+	padding: 1%;
+	background: #e6e6e6;
+	height: 20px;
+	width: 98%;
+	font-size: 15px;
+	border: none;
+}
+.duel-chat-logs {
+	height: 245px;
+	overflow: auto;
+	background: white;
+	border: 1px solid #b6b6b6;
+	border-top: none;
+	padding: 1%;
+	font-size: 60%;
+}
+.selected-phase {
+	background: grey;
+	color: white;
+}
+.user-turn {
+	background: white;
+	color: black;
+}
+.dice {
+	position: absolute;
+	top: 200px;
+	left: 300px;
+	z-index: 1;
+}
+.coverup {
+	background: black;
+	width: 100%;
+	height: 85px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
+}
+.context {
+	display: none;
+	border: 1px solid #b6b6b6;
+	background: #e6e6e6;
+	padding: 1px;
+	position: absolute;
+	cursor: pointer;
+	width: 57px;
+	font-size: 10px;
+	z-index: 10;
+}
+.context div {
+	color: grey;
+}
+.context div:hover {
+	color: black;
+}
+.hand {
+	text-align: center;
+}
+.hand img {
+	margin-right: 2px;
+	margin-left: 2px;
+}
+.defense {
+	behavior: url(-ms-transform.htc);
+	-moz-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+}
+.phase {
+	font-size: 12px;
+}
+.youbanished {
+	width: 60px;
+	height: 79px;
+	padding: 5px;
+	text-align: center;
+	background: black;
+	position: absolute;
+	left: 624px;
+	top: 50px;
+	cursor: pointer;
+}
+.oppbanished {
+	width: 60px;
+	height: 79px;
+	padding: 5px;
+	text-align: center;
+	background: black;
+	position: absolute;
+	left: 624px;
+	top: 50px;
+	cursor: pointer;
+}
+.info {
+	background: white;
+	height: 94px;
+	border-bottom: 1px solid #b6b6b6;
+}
+.infoimg {
+	border-right: 1px solid #b6b6b6;
+	padding: 5px;
+	width: 55px;
+	height: 84px;
+	float: left;
+	background: #e6e6e6;
+}
+.infoinfo {
+	height: 84px;
+	width: 224px;
+	overflow: auto;
+	float: left;
+	padding: 5px;
+	font-size: 10px;
+}
+#opp7, #you7 {
+	cursor: pointer;
+}
+.shuffle {
+	position: relative;
+}
+.shuffle img {
+	position: absolute;
+}
+.view-list {
+	z-index: 2;
+	border: 1px solid #b6b6b6;
+	position: absolute;
+	display: none;
+}
+.card-list-exit {
+	cursor: pointer;
+	color: red;
+	background: white;
+	position: absolute;
+	right: -1px;
+	top: -1px;
+	border-bottom: 1px solid #B6B6B6;
+	border-left: 1px solid #B6B6B6;
+	padding: 5px;
+	font-weight: bold;
+	font-size: 15px;
+	z-index: 1;
+}
+.card-list-header {
+	background: white;
+	position: absolute;
+	padding: 5px;
+	font-size: 20px;
+	font-weight: bold;
+	left: 200px;
+	top: -38px;
+	border: 1px solid black;
+}
+.card-list-content {
+	overflow: auto;
+	width: 100%;
+	height: 100%;
+}
+.shuffleabs {
+	display: none;
+	position: absolute;
+	z-index: 5;
+}
+.status {
+	text-shadow: 0.15em 0.15em green;
+	font-size: 15px;
+	color: white;
+	height: 15px;
+	font-weight: bold;
+	position: absolute;
+	top: 14px;
+}
+.sword {
+	position: absolute;
+	display: none;
+	z-index: 1;
+}
+.floaty-menu {
+	height: 95%;
+	position: absolute;
+	top: 2%;
+	border: 1px solid #b6b6b6;
+	padding: 5px;
+	right: 0;
+	font-size: 100%;
+	cursor: pointer;
+	min-width: 13px;
+	background: white;
+	z-index: 2;
+}
+.floaty-content {
+	max-width: 0px;
+	overflow: hidden;
+	z-index: 1;
+	background: white;
+	color: grey;
+}
+.floaty-content:hover {
+	max-width: 500px;
+}
+.floaty-content div:hover {
+	color: black;
+}
+.floaty-contain {
+	margin: -5px;
+	width: 100%;
+	padding: 5px;
+	height: 100%;
+	background: url('./arrows.png') no-repeat center;
+	position: relative;
+}
+.duel-ops {
+	margin: -5px;
+	padding: 5px;
+}
+.duel-ops ul, .duel-ops li {
+	list-style: none;
+	margin: -5px;
+	padding: 5px;
+}
+.duel-ops ul {
+	display: none;
+	position: absolute;
+	background: #e6e6e6;
+	border: 1px solid #b6b6b6;
+	padding: 2px;
+}
+
+/*deck-manager*/
+.big {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	display: none;
+}
+.center-it {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -300.5px;
+	margin-top: -196.5px;
+	background: url('./imgs/files.jpg');
+	width: 601px;
+	height: 393px;
+}
+.relativity {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+.relativity .exit {
+	position: absolute;
+	right: 6px;
+	top: 5px;
+	width: 22px;
+	height: 22px;
+	cursor: pointer;
+	opacity: 0.2;
+	background: white;
+}
+.relativity .exit:hover {
+	opacity: 0;
+}
+.save-it {
+	position: absolute;
+	right: 12px;
+	bottom: 33px;
+	width: 87px;
+	height: 20px;
+	cursor: pointer;
+	opacity: 0.2;
+	background: white;
+}
+.save-it:hover {
+	opacity: 0;
+}
+.open-it {
+	position: absolute;
+	right: 11px;
+	bottom: 8px;
+	width: 87px;
+	height: 20px;
+	cursor: pointer;
+	opacity: 0.2;
+	background: white;
+}
+.open-it:hover {
+	opacity: 0;
+}
+.name-it {
+	position: absolute;
+	bottom: 33px;
+	left: 175px;
+	width: 300px;
+	height: 21px;
+	border: none;
+	padding: 0;
+	margin: 0;
+	outline: none;
+	background: transparent;
+	font-size: 15px;
+}
+.it-content {
+	position: absolute;
+	top: 59px;
+	right: 10px;
+	width: 490px;
+	height: 276px;
+	overflow: auto;
+}
+.file {
+	background: url('./imgs/file.jpg') no-repeat 2px;
+	height: 32px;
+	padding: 2px;
+	padding-left: 32px;
+	margin: 5px;
+	border: 1px solid white;
+	cursor: pointer;
+}
+.file:hover {
+	border: 1px solid #b6b6b6;
+	background-color: #f6f6f6;
+}
+.decklist-it {
+	position: absolute;
+	bottom: 9px;
+	left: 10px;
+	width: 85px;
+	height: 325px;
+	border: none;
+	padding: 0;
+	margin: 0;
+	outline: none;
+	background: transparent;
+	font-size: 12px;
+}
+.delete-it {
+	position: absolute;
+	right: 184px;
+	bottom: 9px;
+	width: 87px;
+	height: 20px;
+	cursor: pointer;
+	opacity: 0.2;
+	background: white;
+}
+.delete-it:hover {
+	opacity: 0;
+}
+.o-db {
+	position: absolute;
+	right: 284px;
+	bottom: 9px;
+	width: 87px;
+	height: 20px;
+	cursor: pointer;
+	opacity: 0.2;
+	background: white;
+}
+.o-db:hover {
+	opacity: 0;
+}
+
+/* private messages */
+.pm {
+	position: absolute;
+	padding: 5px;
+	background: #ffffff;
+	top: 0px;
+	left: 0px;
+	z-index: 2;
+	border: 1px solid #b6b6b6;
+	width: 300px;
+	height: 300px;
+	text-align: left;
+	opacity: 0.9;
+}
+.pmheader {
+	padding-left: 5px;
+	padding-right: 5px;
+	margin: -5px;
+	background: #e6e6e6;
+	border-bottom: 1px solid #b6b6b6;
+	height: 18px;
+	font-size: 15px;
+	margin-bottom: 0;
+	cursor: pointer;
+}
+.pmexit {
+	float: right;
+	font-weight: bold;
+	color: red;
+	cursor: pointer;
+}
+.pmlogs {
+	height: 270px;
+	overflow: auto;
+	overflow-x: hidden;
+}
+.pminput {
+	width: 310px;
+	height: 20px;
+	font-size: 15px;
+	margin: -5px;
+	border: none;
+	border-top: 1px solid #b6b6b6;
+	outline: none;
+}
+
+/* challenges */
+.challenges {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
+	width: 323px;
+}
+.challenge {
+	cursor: default;
+	width: 300px;
+	height: 80px;
+	background: #A4D3EE;
+	border-radius: 10px;
+	padding: 10px;
+	border: 1px solid black;
+}
+.challengeHeader {
+	background: white;
+	opacity: 0.6;
+	border-radius: 10px 10px 0px 0px;
+	margin:-10px;
+	margin-bottom: 0px;
+	border-bottom: 1px solid black;
+	text-align: center;
+	font-weight: bold;
+	font-size: 20px;
+}
+/* challenges */
+
+/* flipping: http://stackoverflow.com/questions/1309055/cross-browser-way-to-flip-html-image-via-javascript-css */
+.h {
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    transform: scaleX(-1);
+    -ms-filter: fliph; /*IE*/
+    filter: fliph; /*IE*/
+}
+.v {
+    -moz-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    transform: scaleY(-1);
+    -ms-filter: flipv; /*IE*/
+    filter: flipv; /*IE*/
+}
+
+/* context menu: i forgot where i got this but i got it bcos it was pretty */
+.cmenu {margin: 0; padding: 0.3em; list-style-type: none;
+    background-color: white;}
+.cmenu li:hover {}
+.cmenu hr {border: 0; border-bottom: 1px solid grey;
+    margin: 3px 0px 3px 0px; width: 10em;}
+.cmenu a {border: 0 !important;}
+.cmenu a:hover {text-decoration: underline !important;}
+.cmenu .topSep {font-size: 90%; border-top: 1px solid gray;
+    margin-top: 0.3em; padding-top: 0.3em;}

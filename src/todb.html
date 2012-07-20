@@ -1,0 +1,35 @@
+<textarea ondblclick="doit(this.value);"></textarea><textarea id="takeit"></textarea>
+<script>
+function doit(val) {
+	var takeit = "";
+	splint = val.split('\n');
+	for (var i = 0; i < splint.length-1; i++) {
+		var current = splint[i];
+		var s = current.split(',');
+		if (s[1].length != "") {
+			var eff = s[9];
+			var next5 = "";
+			var stopit = 0;
+			for (var x = 1; x < 6; x++) {
+				if (typeof splint[i+x] != "undefined") {
+					if (splint[i+x].split(',')[1] == "" && stopit == 0) {
+						next5 += "&break;" + splint[i+x].split(',')[9];
+					}
+					else {
+						var stopit = 1;
+					}
+				}
+			}
+			var eff = eff + next5;
+			takeit += ', "' + a(s[1]) + '": {"set": "' + a(s[0]) + '", "name": "' + a(s[1]) + '", "type": "' + a(s[2]) + '", "attribute": "' + a(s[3]) + '", "subtype": "' + a(s[4]) + '", "level": "' + a(s[5]) + '", "atk": "' + a(s[6]) + '", "def": "' + a(s[7]) + '", "effect": "' + a(eff) + '"}';		
+		}
+	}
+	document.getElementById("takeit").value = takeit;
+}
+function a(txt) {
+	return txt.replace(/&quot;/g, '\\"').replace(/&comma;/g, ',').replace(/&singlequot;/g, "'");
+}
+</script>
+<br />
+id:{set, name, type, attribute, subtype, level, atk, def, effect}<br />
+"Tri-Horned Dragon": {"set": "LOB-000", "name": "Tri-Horned Dragon", "type": "Normal Monster", "attribute": "Dark", "subtype": "Dragon", "level": "8", "atk": "2850", "def": "2350", "effect": "An unworthy dragon with three sharp horns sprouting from its head."}

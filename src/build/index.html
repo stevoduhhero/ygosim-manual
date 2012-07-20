@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>YGOSiM - Deck Builder</title>
+<link rel="stylesheet" type="text/css" href="./v1.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="../standard.js"></script>
+<script src="http://ygosim.dyndns.org/ygo/db.js"></script>
+<script src="./v1.js"></script>
+</head>
+<body>
+<div id="v1" class="v1">
+	<div id="info" class="info"></div>
+	<div class="search"><div contenteditable="true" id="v1search" class="textbox searchbox">Search...</div><div id="search-results" class="search-res"></div></div>
+	<div id="cards" class="cards">
+		<div id="main" class="main"></div>
+		<div id="extra" class="extra"></div>
+		<div id="side" class="side"></div>
+	</div>
+	<div class="v1menu"><img src="./imgs/clear.png" id="clear" /><img src="./imgs/import.png" id="import" /><img src="./imgs/export.png" id="export" /><img src="./imgs/sort.png" id="sort" /></div>
+	<div class="centering" id="center">
+		<div class="center">
+			<div class="header" id="header"></div><div class="exit" onmousedown="$('#center').fadeOut();">X</div>
+			<div class="content" id="center-content"></div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
