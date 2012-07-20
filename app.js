@@ -42,7 +42,7 @@ rooms = {
 */
 };
 
-cc = require('./chat-commands.js');
+cc = require('./scripts.js');
 
 sys = {
 	send: function(msg, room) {
