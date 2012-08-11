@@ -1,4 +1,5 @@
 $(function() {
+	db = window.opener.db;
 	deck = {
 		main: [""],
 		extra: [""],
@@ -9,7 +10,7 @@ $(function() {
 			var card = db[card];
 			var set = card.set;
 			var set0 = set.split('-')[0].toLowerCase();
-			return '<img id="' + htmlescape(card.name) + '" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" />';
+			return '<img id="' + htmlescape(card.name) + '" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" />';
 		},
 		add: function(id) {
 			var card = db[id];
@@ -226,7 +227,7 @@ function cardeffect(eff) {
 function cardimage(card) {
 	var set = card.set;
 	var set0 = set.split('-')[0].toLowerCase();
-	return '<img id="' + htmlescape(card.name) + '" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="90%" />';
+	return '<img id="' + htmlescape(card.name) + '" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="90%" />';
 }
 function cardinfo(card) {
 	var card = db[card];

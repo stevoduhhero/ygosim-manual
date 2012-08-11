@@ -1,6 +1,8 @@
 var socket = io.connect('http://' + host + ":" + port);
 
 $(document).ready(function() {
+	spectating = false;
+	selectedTab = "usersList";
 	mainChatMessagesScrollCache = "";
 	mainChatMessages = [];
 	mainChatMessagesScroll = 0;
@@ -92,6 +94,13 @@ $(document).ready(function() {
 			if (typeof pms[data.userid] != "undefined") {
 				$("#pmlogs" + data.userid).append("<div><font color=\"grey\">" + htmlesc(data.username) + " came back.</font></div>");
 			}
+		},
+		duelStart: function(data) {
+			ygo.chatMessage("<td>" + ygo.timestamp() + "Battle started between " + htmlesc(data.p1) + " and " + htmlesc(data.p2) + ".</td>");
+			ygo.addDuel(data);
+		},
+		addDuel: function(data) {
+			$("#duelsList").prepend('<div id="duel' + data.duelid + '" onclick="spectateDuel(' + data.duelid + ');">' + htmlesc(data.p1) + ' vs. ' + htmlesc(data.p2) + '</div>');
 		},
 		getUsers: function(data) {
 			for (var i = 1; i < data.length; i++) {
@@ -194,19 +203,19 @@ $(document).ready(function() {
 			var card = db[card];
 			var set = card.set;
 			var set0 = set.split('-')[0].toLowerCase();
-			return '<img id="' + htmlescape(card.name) + '" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
+			return '<img id="' + htmlescape(card.name) + '" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
 		},
 		imgsrc: function(card) {
 			var card = db[card];
 			var set = card.set;
 			var set0 = set.split('-')[0].toLowerCase();
-			return 'http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg';
+			return 'http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg';
 		},
 		dfcdefense: function(card) {
 			var card = db[card];
 			var set = card.set;
 			var set0 = set.split('-')[0].toLowerCase();
-			return '<img id="' + htmlescape(card.name) + '" class="defense" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
+			return '<img id="' + htmlescape(card.name) + '" class="defense" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
 		},
 		facedowndfc: function(card) {
 			var card = db[card];
@@ -226,7 +235,7 @@ $(document).ready(function() {
 					var card = db[card];
 					var set = card.set;
 					var set0 = set.split('-')[0].toLowerCase();
-					return '<img id="' + htmlescape(card.name) + '" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
+					return '<img id="' + htmlescape(card.name) + '" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" height="79" />';
 				}
 			},
 			opp: {
@@ -343,6 +352,7 @@ $(document).ready(function() {
 						username: username,
 						color: cookie("color"),
 					});
+					$("#chat-message").focus();
 				}
 				else {
 					username2 = username;
@@ -351,7 +361,7 @@ $(document).ready(function() {
 					$("#o_r").click();
 				}
 				if (data == 2) {
-					loginner = 1;
+					loginner = 2;
 				}
 			}
 		});
@@ -464,7 +474,7 @@ $(document).ready(function() {
 				url: "post.php",
 				data: "d=check-registered&u=" + username + "&p=" + pass,
 				success: function(data) {
-					if (data == 0) {
+					if (data == 0 || data == 2) {
 						socket.emit('join', {
 							room: room,
 							username: username,
@@ -525,12 +535,12 @@ $(document).ready(function() {
 		$("#decklist-it").val("Paste your deck here.").select();
 	});
 	$("#o_r").click(function() {
-		if (username != "" && loginner == 1) {
-			return false;
-		}
-		$("#register-form").fadeIn("slow", function() {
-			$("#register-form-input").focus().val(username2);
-		});
+		if (loginner == 2) return;
+		$("#register-form").fadeIn("slow");
+		var uname = username;
+		if (uname == "") uname = username2;
+		$("#register-form-input").val(uname);
+		$("#register-form-input2").focus();
 		if (loginner == 1) {
 			$("#register-form-label").html("Login");
 		}
@@ -581,7 +591,7 @@ $(document).ready(function() {
 		}
 		var message = $("#chat-message").val();
 		mainChatMessages[mainChatMessages.length] = message;
-		chatMessagesScroll = mainChatMessages.length;
+		mainChatMessagesScroll = 0;
 		if (message.charAt(0) == "/") {
 			$("#chat-message").val("").focus();
 			//commands
@@ -598,6 +608,7 @@ $(document).ready(function() {
 			switch(command.toLowerCase()) {
 				case 'nick':
 					if (commandData.replace(/ /g, '') != "") {
+						if (username.toLowerCase() == commandData.toLowerCase() || commandData.replace(/ /g, '') == "") return false;
 						username = commandData;
 						var pass = "";
 						$.ajax({
@@ -617,28 +628,28 @@ $(document).ready(function() {
 									username2 = username;
 									username = "";
 									eatcookie("username");
-									loginner = 1;
+									loginner = 0;
 									$("#o_r").click();
+									$("#register-form-input2").val("").focus();
 								}
 							}
 						});
-						return false;
+						return;
 					}
 					break;
 					
 				case 'ls':
-					message = ">> for (var i in require.cache) delete require.cache[i];cc = require('./chat-commands.js');''";
+					message = ">> for (var i in require.cache) delete require.cache[i];cc = require('./scripts.js').scripts;''";
 					break;
 				
 				case 'clear':
 					$("#logs").html("");
+					return;
 					break;
 			}
 		}
 		socket.emit('chatMessage', {
-			user: username,
 			message: message,
-			symbol: authority,
 			room: room
 		});
 		$("#chat-message").val("").focus();
@@ -677,19 +688,46 @@ $(document).ready(function() {
 			else {
 				var d = "register";
 			}
-			if (username2 != "" && typeof username2 != "undefined" && typeof user_id != "undefined") {
-				eatcookie("username");
-				eatcookie("password");
-				bake("username", username2, 365);
-				socket.emit('leave', {userid: user_id, room: room});
-				socket.emit('join', {username: username2, room: room, color: cookie("color")});
-				loginner = 1;
-				$("#register-form").hide();
-				notice("Logged in successfully.");
-				setTimeout(function() {
-					$("#notice-close").mousedown();
-					$("#chat-message").focus();
-				}, 1000);
+			if (typeof username2 != "undefined" && typeof user_id != "undefined") {
+				if (username2 == "") return;
+				var dataString = "d=login&u=" + $("#register-form-input").val() + "&p=" + this.value;
+				$.ajax({
+					type: "POST",
+					url: "post.php",
+					data: dataString,
+					success: function(data) {
+						if (data.split('*').length-1 > 0) {
+							$("#register-form").hide();							
+							socket.emit('leave', {userid: user_id, room: room});
+							loginner = 2;
+							username = $("#register-form-input").val();
+							eatcookie("username");
+							bake("username", $("#register-form-input").val(), 365);
+							bake("password", data.split('*')[1], 365);
+							notice("Logged in successfully.");
+							setTimeout(function() {
+								$("#notice-close").mousedown();
+								$("#chat-message").focus();
+							}, 1000);
+							rejoin();
+							$("#register-form-input2").val("");
+						}
+						else {
+							username = username2;
+							username2 = "";
+							bake("username", username, 365);
+							$("#register-form").hide();
+							$("#register-form-input2").val("");
+							$("#notice-content").html("The username or password is incorrect.");
+							$("#notice").fadeIn("slow", function() {
+								$("#notice").fadeOut("fast", function() {
+									$("#register-form").fadeIn("slow");
+								});
+								$("#register-form-input2").val("").focus();
+							});
+						}
+					}
+				});
 				return false;
 			}
 			var dataString = "d=" + d + "&u=" + $("#register-form-input").val() + "&p=" + this.value;
@@ -705,7 +743,7 @@ $(document).ready(function() {
 							bake("username", $("#register-form-input").val(), 365);
 							notice("Registered successfully.");
 							$("#register-form-input2").val("");
-							loginner = 1;
+							loginner = 2;
 						}
 						else {
 							$("#register-form-input").focus().select();
@@ -714,6 +752,7 @@ $(document).ready(function() {
 								$("#notice").fadeOut("fast", function() {
 									$("#register-form").fadeIn("slow");
 								});
+								$("#register-form-input2").val("").focus();
 							});
 						}
 					}
@@ -2413,10 +2452,30 @@ $(document).ready(function() {
 			}
 		});
 	});
-	$.getScript("http://ygosim.dyndns.org/ygo/db.js");
+	$.getScript("http://elloworld.dyndns.org/ygo/db.js");
 });
 //functions
+function spectateDuel(duelid) {
+	if (user_id == 0) return;
+	if (spectating == true) return;
+	spectating = true;
+	socket.on('spectate duel', {
+		userid: user_id,
+		duelid: duelid
+	});
+}
+function selectListTab(el, id) {
+	$(".selectedTab").attr("class", "");
+	el.className = "selectedTab";
+	$("#" + selectedTab).hide();
+	$("#" + id).show();
+	selectedTab = id;
+}
 function rejoin() {
+	socket.emit('leave', {
+		room: room,
+		username: username
+	});
 	socket.emit('join', {
 		room: room,
 		username: username,
@@ -3096,7 +3155,7 @@ function cardeffect(eff) {
 function cardimage(card) {
 	var set = card.set;
 	var set0 = set.split('-')[0].toLowerCase();
-	return '<img id="' + htmlescape(card.name) + '" src="http://ygosim.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" />';
+	return '<img id="' + htmlescape(card.name) + '" src="http://elloworld.dyndns.org/ygo/cards/' + set0 + '/' + set + '.jpg" width="55" />';
 }
 function cardimagenew(card, i) {
 	return cardimage(card).replace('width="55"', 'width="40" class="card_' + i + '"');

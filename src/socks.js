@@ -29,6 +29,9 @@ function iSomething(data) {
 			}
 		}
 	});
+	for (var i = 1; i < data.duels.length; i++) {
+		ygo.addDuel(data.duels[i]);
+	}
 	if (data.duel != null) {
 		
 	}
@@ -95,6 +98,12 @@ socket.on('changeColor', function(data) {
 });
 socket.on('changeAuth', function(data) {
 	authority = data;
+});
+socket.on('newDuel', function(data) {
+	ygo.duelStart(data);
+});
+socket.on('duel end', function(data) {
+	$("#duel" + data.duelid).remove();
 });
 socket.on('startDuel', function(data) {
 	delete challenges[data.opp.id];

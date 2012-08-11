@@ -1,11 +1,12 @@
 io = require('socket.io').listen(8000);
 fs = require('fs');
 
+duelcount = 0;
 duels = [{
 	phase: "dp",
 	turn: "p1",
 	winner: "",
-	spectators: [],
+	spectators: ["p1", "p2"],
 	status: "started/completed",
 	p1: {
 		borrowed: ["slot"],
@@ -42,9 +43,13 @@ rooms = {
 */
 };
 
-cc = require('./scripts.js');
+cc = require('./scripts.js').scripts;
+cc.sendChatMessage = true;
 
 sys = {
+	stopEvent: function() {
+		cc.sendChatMessage = false;
+	},
 	send: function(msg, room) {
 		sys.room.selfEmit('serverMessage', {msg: "<timestamp/>" + htmlescape(msg), room: room, src: sys.ds});
 	},
@@ -78,6 +83,7 @@ sys = {
 	},
 	id: function(name) {
 		var user_id = 0;
+		if (typeof name == "undefined") return user_id;
 		for (var i in users) {
 			var currentName = users[i][0];
 			if (currentName.toLowerCase() == name.toLowerCase()) {
@@ -92,6 +98,13 @@ sys = {
 			return 0;
 		}
 		return users[src][0];
+	},
+	changeName: function(src, newname) {
+		if (typeof users[src] == "undefined") {
+			sys.send("That user does not exist.");
+			return 0;
+		}
+		users[src][0] = newname;
 	},
 	auth: function(src) {
 		if (typeof users[src] == "undefined") {
@@ -239,6 +252,7 @@ sys = {
 		return deck;
 	},
 	startDuel: function(p1, p2) {
+		duelcount++;
 		sys.shuffle(p1.deck.main);
 		sys.shuffle(p2.deck.main);
 		var hand1 = ["", p1.deck.main[1], p1.deck.main[2], p1.deck.main[3], p1.deck.main[4], p1.deck.main[5]];
@@ -271,10 +285,11 @@ sys = {
 			oppextra: p1.deck.extra
 		});
 		duels[duels.length] = {
+			duelid: duelcount,
 			phase: "DP",
 			turn: "p1",
 			winner: "",
-			spectators: [],
+			spectators: [p1.user_id, p2.user_id],
 			status: "started",
 			p1: {
 				borrowed: ["slot"],
@@ -304,8 +319,14 @@ sys = {
 			}
 		};
 		console.log("NEW DUEL: " + p1.user_id + " VS " + p2.user_id);
-
-		sys.sendAll("Battle started between " + sys.name(p1.user_id) + " and " + sys.name(p2.user_id) + ".", sys.onroom(p1.user_id));
+		
+		var room = sys.onroom(p1.user_id);
+		sys.room.emit('newDuel', {
+			room: room,
+			p1: sys.name(p1.user_id),
+			p2: sys.name(p2.user_id),
+			duelid: duelcount
+		});
 
 		if (typeof cc.afterDuelStarted != "undefined") {
 			cc.afterDuelStarted(p1.user_id, p2.user_id);
@@ -319,6 +340,22 @@ sys = {
 		}
 	}
 	,
+	duelId: function(userid) {
+		for (var i = 1; i < duels.length; i++) {
+			if ((duels[i].p1.id == userid || duels[i].p2.id == userid) && duels[i].winner == "") {
+				return i;
+			}
+		}
+	}
+	,
+	lastDuelId: function(userid) {
+		for (var i = duels.length-1; i > 0; i--) {
+			if ((duels[i].p1.id == userid || duels[i].p2.id == userid) && duels[i].winner != "") {
+				return i;
+			}
+		}
+	}
+	,
 	lastDuel: function(userid) {
 		for (var i = duels.length-1; i > 0; i--) {
 			if ((duels[i].p1.id == userid || duels[i].p2.id == userid) && duels[i].winner != "") {
@@ -327,6 +364,41 @@ sys = {
 		}
 	}
 	,
+	setWinner: function(src) {
+		var el = sys.isDueling(src);
+		if (!el) {
+			//game already has a winner
+			return false;
+		}
+		var opp = sys.opp(src);
+		el.status = "completed";
+		el.winner = sys.duelel(opp).name;
+		sys.sock(opp).emit('admitdefeat', {userid: src});
+		
+		var loser = src;
+		var winner = opp;
+		sys.sendAll(sys.name(winner) + " won their duel against " + sys.name(loser), sys.onroom(winner));
+		if (typeof cc.afterDuelEnded != "undefined") {
+			cc.afterDuelEnded(winner, loser);
+		}
+		sys.room.emit('duel end', {
+			room: sys.onroom(src),
+			duelid: el.duelid
+		});
+	}
+	,
+	stopSpectate: function(userid) {
+		var id = sys.lastDuelId(userid);
+		var el = duels[id];
+		for (var i in el.spectators) {
+			if (el.spectators[i] == userid) {
+				el.spectators.splice(i, 1);
+			}
+		}
+		if (el.spectators.length == 0) {
+			duels.splice(id, 1);
+		}
+	},
 	opp: function(userid) {
 		var el = sys.isDueling(userid);
 		if (el) {
@@ -390,6 +462,14 @@ sys = {
 		if (typeof field[13] == "undefined") {return 13;}
 		return 0;
 	},
+	duelEmit: function(event, data) {
+		//send to everyone except data.exception
+		var el = duels[data.duelid];
+		if (typeof el == "undefined") return;
+		for (var i = 0; i < el.spectators.length; i++) {
+			if (typeof data.exception == "undefined" && data.exception != el.spectators[i]) sys.sock(el.spectators[i]).emit(event, data);
+		}
+	},
 	room: {
 		emit: function(event, data) {
 			for (var i = 1; i < rooms[data.room].users.length; i++) {
@@ -410,28 +490,6 @@ sys = {
 };
 
 io.sockets.on('connection', function (socket) {
-	socket.on('disconnect', function () {
-		var id = sys.ID(socket.id);
-		if (id == 0) return false;
-		var room = sys.onroom(id);
-		if (typeof rooms[room] == "undefined") {
-			var room = "main";
-		}
-		var id2 = sys.room.id(room, id);
-		if (typeof users[id] == "undefined" || typeof rooms[room].users[id2] == "undefined") {
-			return false;
-		}
-		rooms[room].users.splice(id2, 1);
-		users[id][1] = 0;
-		var usersname = sys.name(id);
-		sys.room.emit('leave', {
-			userid: id,
-			username: usersname,
-			room: room
-		});
-		sys.sock(id).emit('disconnected');
-		console.log('LEAVE: ' + usersname);
-	});
 	socket.on('join', function(data) {
 		var auth = "";
 		var uid = 0;
@@ -492,13 +550,23 @@ io.sockets.on('connection', function (socket) {
 			}
 			everyone[i] = [rooms[room].users[i], user[0], user[5]];
 		}
+		var duelList = [];
+		for (var i = 1; i < duels.length; i++) {
+			if (sys.onroom(duels[i].p1.id) != room) return;
+			duelList[i] = {
+				p1: sys.name(duels[i].p1.id),
+				p2: sys.name(duels[i].p2.id),
+				duelid: i
+			};
+		}
 		socket.emit('iJoin', {
 			username: data.username,
 			userid: uid,
 			symbol: auth,
 			everyone: everyone,
 			duel: extra,
-			room: room
+			room: room,
+			duels: duelList
 		});
 		sys.room.emit('join', {
 			userid: uid,
@@ -508,6 +576,28 @@ io.sockets.on('connection', function (socket) {
 			room: room
 		});
 		console.log('REGISTER: ' + data.username);
+	});
+	socket.on('disconnect', function () {
+		var id = sys.ID(socket.id);
+		if (id == 0) return false;
+		var room = sys.onroom(id);
+		if (typeof rooms[room] == "undefined") {
+			var room = "main";
+		}
+		var id2 = sys.room.id(room, id);
+		if (typeof users[id] == "undefined" || typeof rooms[room].users[id2] == "undefined") {
+			return false;
+		}
+		rooms[room].users.splice(id2, 1);
+		users[id][1] = 0;
+		var usersname = sys.name(id);
+		sys.room.emit('leave', {
+			userid: id,
+			username: usersname,
+			room: room
+		});
+		sys.sock(id).emit('disconnected');
+		console.log('LEAVE: ' + usersname);
 	});
 	socket.on('leave', function(data) {
 		var room = data.room;
@@ -540,26 +630,21 @@ io.sockets.on('connection', function (socket) {
 		if (typeof rooms[room] == "undefined") {
 			var room = "main";
 		}
-		var uid = 0;
-		var user = "";
-		for (var i = 1; i < users.length; i++) {
-			var currentName = users[i][0];
-			if (currentName == data.user) {
-				var user = users[i];
-				var uid = i;
-			}
-		}
+		var uid = sys.ID(socket.id);
 		if (uid == 0) {
 			return false;
 		}
+		var user = users[uid];
 		data.uid = uid;
+		data.user = sys.name(uid);
+		data.symbol = sys.auth(uid);
 		sys["ds"] = socket.id;
-		cc.commands(sys, uid, data.message, room);
-		if (cc.yesido == 1) {
+		cc.beforeChatMessage(uid, data.message, room);
+		if (cc.sendChatMessage == true) {
 			data.room = room;
 			sys.room.emit('chatMessage', data);
 		}
-		cc.yesido = 1;
+		cc.sendChatMessage = true;
 	});
 	socket.on('pmuser', function(data) {
 		sys.sock(data.target).emit('pmuser', data);
@@ -606,9 +691,9 @@ io.sockets.on('connection', function (socket) {
 		delete challenges[data.challenger + "*" + data.target];
 	});
 	socket.on('challenge decline', function(data) {
+		sys.sock(data.challenger).emit('challenge decline', data);
 		delete challenges[data.target + "*" + data.challenger];
 		delete challenges[data.challenger + "*" + data.target];
-		sys.sock(data.challenger).emit('challenge decline', data);
 	});
 	socket.on('duel-chat', function(data) {
 		var opp = sys.opp(data.userid);
@@ -1116,27 +1201,13 @@ io.sockets.on('connection', function (socket) {
 		el.phase = data.phase;
 	});
 	socket.on('duel - admit defeat', function(data) {
-		var el = sys.isDueling(data.userid);
-		if (!el) {
-			//game already has a winner
-			return false;
-		}
-		var opp = sys.opp(data.userid);
-		el.status = "completed";
-		el.winner = sys.duelel(opp).name;
-		sys.sock(opp).emit('admitdefeat', data);
-		
-		var loser = data.userid;
-		var winner = opp;
-		sys.sendAll(sys.name(winner) + " won their duel against " + sys.name(loser), sys.onroom(winner));
-		if (typeof cc.afterDuelEnded != "undefined") {
-			cc.afterDuelEnded(winner, loser);
-		}
+		sys.setWinner(data.userid);
 	});
 	socket.on('leave duel', function(data) {
 		//look for old opp socket
 		var lastopp = sys.lastOpp(data.userid);
 		sys.sock(lastopp).emit('leaveduel', data);
+		sys.stopSpectate(data.userid);
 	});
 	socket.on('selection', function(data) {
 		var opp = sys.opp(data.userid);
@@ -1158,6 +1229,19 @@ io.sockets.on('connection', function (socket) {
 		}
 		oppsock.emit('rpschoose', {message: sys.name(data.userid) + " is going <b>" + data.choice + "</b>", choice: data.choice});
 		socket.emit('rpschoose', {message: sys.name(data.userid) + " is going <b>" + data.choice + "</b>", choice: data.choice});
+	});
+	socket.on('spectate duel', function(data) {
+		var el = duels[data.duelid];
+		if (typeof el == "undefined") return;
+		if (typeof users[data.userid] == "undefined") return;
+		el.spectators[el.spectators.length] = data.userid;
+		//notify everyone of the new spectator.
+		//sys.duelEmit('new spectator', {
+		//	duelid: data.duelid,
+		//	userid: data.userid
+		//});
+		//send spectator the duel info so he's updated.
+		//socket.emit('');
 	});
 });
 

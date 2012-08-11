@@ -113,11 +113,38 @@ table {
 	width: 100%;
 	height: 100%;
 }
+.listTabsContainer {
+	position: absolute;
+	top: -1px;
+	width: 100%;
+	z-index: 2;
+	text-align: center;
+	background: #1A5BC1;
+	margin-left: -3px;
+	border-bottom: 1px solid #b6b6b6;
+	padding: 3px;
+}
+.listTabsContainer  button {
+	background: white;
+}
+.selectedTab {
+	border: 2px inset buttonface;
+}
 .usersList {
-
+	top: 40px;
+	height: auto;
+	max-height: 100%;
 }
 .usersList div {
 	cursor: default;
+}
+#duelsList div {
+	cursor: pointer;
+	color: grey;
+}
+#duelsList div:hover {
+	color: black;
+	text-decoration: underline;
 }
 .selectedUser {
 	outline: 1px dotted black;

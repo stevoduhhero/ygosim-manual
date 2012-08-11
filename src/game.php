@@ -1,5 +1,5 @@
 <?php
-	$host = "ygosim.dyndns.org";
+	$host = "elloworld.dyndns.org";
 	$port = 8000;
 ?>
 <!DOCTYPE html>
@@ -12,7 +12,7 @@
 <![endif]-->
 </head>
 <body>
-<h2 class="header" id="header">
+<h2 class="header unselectable" id="header" onmousedown="return false;">
 	<img src="./imgs/logo.png" />
 	<a href="http://ygosim.forumotion.com/" target="_BLANK"><img src="./imgs/buttons/forum1.png" onmouseover="this.src = './imgs/buttons/forum2.png';" onmouseout=" this.src = './imgs/buttons/forum1.png';" /></a>
 </h2>
@@ -67,9 +67,11 @@
 <div id="everything-main" class="abs">
 	<div class="relative">
 		<div class="users">
-			<div class="relative">
+			<div class="abs unselectable">
 				<div class="opaque abs"></div>
-				<div class="usersList upper unselectable" id="usersList"></div>
+				<div class="listTabsContainer"><button class="selectedTab" onclick="selectListTab(this, 'usersList');">Players</button><button onclick="selectListTab(this, 'duelsList');">Duels</button></div>
+				<div class="usersList upper" id="usersList"></div>
+				<div class="usersList upper hide" id="duelsList"></div>
 			</div>
 		</div>
 		<div class="chat">
@@ -236,7 +238,7 @@
 <?php
 	echo 'var host = "', $host, '";var port = ', $port, ';';
 	if (isset($_GET['r'])) {
-		echo 'room = "', $_GET['r'] ,'";window.history.pushState({}, "", "./");';
+		echo 'room = "', $_GET['r'] ,'";//window.history.pushState({}, "", "./");';
 	}
 	else {
 		echo 'window.location.href = "./rooms.php";';

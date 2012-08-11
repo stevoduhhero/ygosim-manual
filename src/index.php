@@ -1,5 +1,5 @@
 <?php
-	$host = "ygosim.dyndns.org";
+	$host = "elloworld.dyndns.org";
 	$port = 8000;
 ?>
 <!DOCTYPE html>
